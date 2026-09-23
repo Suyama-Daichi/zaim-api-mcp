@@ -96,3 +96,7 @@ config/
 # Claude Code specific
 .rules
 .tasks
+
+# Cloudflare Workers
+.wrangler/
+.dev.vars
