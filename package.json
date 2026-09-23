@@ -16,7 +16,7 @@
     "test:coverage": "vitest --coverage",
     "docker:build": "docker build -t zaim-api-mcp .",
     "docker:run": "docker run --rm -i zaim-api-mcp",
-    "docker:dev": "docker-compose up --build"
+    "docker:dev": "docker compose up --build"
   },
   "keywords": [
     "mcp",
@@ -28,15 +28,18 @@
     "household-budget",
     "japan"
   ],
-  "author": "Yone Katagiri",
+  "author": "Suyama-Daichi",
+  "contributors": [
+    "Yone Katagiri"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yone-k/zaim-api-mcp.git"
+    "url": "https://github.com/Suyama-Daichi/zaim-api-mcp.git"
   },
-  "homepage": "https://github.com/yone-k/zaim-api-mcp#readme",
+  "homepage": "https://github.com/Suyama-Daichi/zaim-api-mcp#readme",
   "bugs": {
-    "url": "https://github.com/yone-k/zaim-api-mcp/issues"
+    "url": "https://github.com/Suyama-Daichi/zaim-api-mcp/issues"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",

@@ -12,7 +12,7 @@ Zaim APIとの連携を可能にするMCP (Model Context Protocol) サーバー�
 - マスターデータ（カテゴリ、ジャンル、口座、通貨）の取得
 - TypeScriptベースの型安全な実装
 - Zodスキーマによる厳密なバリデーション
-- 包括的なテストカバレッジ（128テスト）
+- 包括的なテストカバレッジ（134テスト）
 - Dockerサポート
 
 ## 実装済みツール
@@ -57,13 +57,15 @@ ZAIM_ACCESS_TOKEN=your_access_token
 ZAIM_ACCESS_TOKEN_SECRET=your_access_token_secret
 ```
 
+Docker Compose（`npm run docker:dev`）を使う場合は、上記をリポジトリ直下の`.env`に記載してください。`.env`はGitの管理対象外で、Dockerイメージにも含まれません。
+
 ## インストール
 
 ### Dockerを使用（推奨）
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/yone-k/zaim-api-mcp.git
+git clone https://github.com/Suyama-Daichi/zaim-api-mcp.git
 cd zaim-api-mcp
 
 # Dockerイメージをビルド
@@ -101,19 +103,27 @@ npm run build
     "zaim-api": {
       "command": "docker",
       "args": [
-        "run", 
-        "--rm", 
+        "run",
+        "--rm",
         "-i",
-        "-e", "ZAIM_CONSUMER_KEY=your_consumer_key",
-        "-e", "ZAIM_CONSUMER_SECRET=your_consumer_secret",
-        "-e", "ZAIM_ACCESS_TOKEN=your_access_token",
-        "-e", "ZAIM_ACCESS_TOKEN_SECRET=your_access_token_secret",
+        "-e", "ZAIM_CONSUMER_KEY",
+        "-e", "ZAIM_CONSUMER_SECRET",
+        "-e", "ZAIM_ACCESS_TOKEN",
+        "-e", "ZAIM_ACCESS_TOKEN_SECRET",
         "zaim-api-mcp"
-      ]
+      ],
+      "env": {
+        "ZAIM_CONSUMER_KEY": "your_consumer_key",
+        "ZAIM_CONSUMER_SECRET": "your_consumer_secret",
+        "ZAIM_ACCESS_TOKEN": "your_access_token",
+        "ZAIM_ACCESS_TOKEN_SECRET": "your_access_token_secret"
+      }
     }
   }
 }
 ```
+
+`-e` に変数名だけを指定すると、Dockerは起動元の環境変数（ここでは`env`で指定した値）をコンテナに引き継ぎます。認証情報がコマンドライン引数に現れないため、`-e KEY=value`の形式よりも安全です。
 
 ### 3. ローカルビルド設定
 
@@ -156,14 +166,10 @@ zaim_create_payment を使って、本日1,500円の昼食代を食費カテゴ�
 zaim_get_user_categories を使って利用可能なカテゴリ一覧を表示してください
 ```
 
-## API設定
+## 制限事項
 
-`config/zaim-config.json`で詳細な設定が可能です：
-
-- APIタイムアウト設定
-- レート制限設定
-- キャッシュ設定
-- ログレベル設定
+- Zaim APIには60リクエスト/分のレート制限がありますが、本サーバーにはレート制限の制御や自動リトライの仕組みはありません
+- 設定は環境変数（認証情報）のみで、タイムアウトなどを変更する設定ファイルはありません
 
 ## プロジェクト構造
 
@@ -182,7 +188,7 @@ zaim-api-mcp/
 │   ├── utils/             # ユーティリティ
 │   └── index.ts           # エントリーポイント
 ├── tests/                 # テストファイル
-├── config/                # 設定ファイル
+├── Dockerfile             # 本番用イメージ（マルチステージ、非rootユーザーで実行）
 └── docker-compose.yml     # Docker設定
 ```
 
