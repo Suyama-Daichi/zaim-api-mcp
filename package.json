@@ -16,7 +16,7 @@
     "test:coverage": "vitest --coverage",
     "docker:build": "docker build -t zaim-api-mcp .",
     "docker:run": "docker run --rm -i zaim-api-mcp",
-    "docker:dev": "docker-compose up --build"
+    "docker:dev": "docker compose up --build"
   },
   "keywords": [
     "mcp",

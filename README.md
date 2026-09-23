@@ -57,6 +57,8 @@ ZAIM_ACCESS_TOKEN=your_access_token
 ZAIM_ACCESS_TOKEN_SECRET=your_access_token_secret
 ```
 
+Docker Compose（`npm run docker:dev`）を使う場合は、上記をリポジトリ直下の`.env`に記載してください。`.env`はGitの管理対象外で、Dockerイメージにも含まれません。
+
 ## インストール
 
 ### Dockerを使用（推奨）
