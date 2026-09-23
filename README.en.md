@@ -1,55 +1,82 @@
-# MCP Base Server
+# Zaim API MCP Server
 
-A base template for creating MCP (Model Context Protocol) servers.
+[日本語 README](README.md)
+
+An MCP (Model Context Protocol) server for the Zaim API. It uses OAuth 1.0a authentication to read and manage household budget data in Zaim.
 
 ## Features
 
-- TypeScript-based MCP server implementation
-- Modular tool architecture
-- Built-in validation with Zod schemas
-- Example tool implementation
-- Testing setup with Vitest
-- Comprehensive error handling
-- Template for rapid MCP server development
+- Integration with the Zaim API (OAuth 1.0a)
+- 14 tools
+- Create, read, update, and delete money records
+- Master data retrieval (categories, genres, accounts, currencies)
+- Type-safe TypeScript implementation
+- Strict input validation with Zod schemas
+- Test suite (134 tests)
+- Docker support
+
+## Available Tools
+
+### Authentication & User Info
+- `zaim_check_auth_status` - Check authentication status
+- `zaim_get_user_info` - Get user information
+
+### Money Records
+- `zaim_get_money_records` - Get money records (with filtering and pagination)
+- `zaim_create_payment` - Create a payment record
+- `zaim_create_income` - Create an income record
+- `zaim_create_transfer` - Create a transfer record
+- `zaim_update_money_record` - Update an existing record
+- `zaim_delete_money_record` - Delete a record
+
+### Master Data
+- `zaim_get_user_categories` - List user categories
+- `zaim_get_user_genres` - List user genres
+- `zaim_get_user_accounts` - List user accounts
+- `zaim_get_default_categories` - List default categories
+- `zaim_get_default_genres` - List default genres
+- `zaim_get_currencies` - List available currencies
 
 ## Requirements
 
-- Docker
-- Docker Compose (optional)
+- Docker (recommended)
+- Node.js 22+ (for local development)
+- Zaim API OAuth credentials
+  - Consumer Key
+  - Consumer Secret
+  - Access Token
+  - Access Token Secret
+
+## Environment Variables
+
+```bash
+# Required: Zaim API credentials
+ZAIM_CONSUMER_KEY=your_consumer_key
+ZAIM_CONSUMER_SECRET=your_consumer_secret
+ZAIM_ACCESS_TOKEN=your_access_token
+ZAIM_ACCESS_TOKEN_SECRET=your_access_token_secret
+```
 
 ## Installation
 
+### Using Docker (recommended)
+
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd mcp-base
+git clone https://github.com/Suyama-Daichi/zaim-api-mcp.git
+cd zaim-api-mcp
 
-# Build Docker image
-docker build -t mcp-base .
+# Build the Docker image
+docker build -t zaim-api-mcp .
 ```
 
-## Usage
-
-### Docker (Recommended)
-
-```bash
-# Basic execution
-docker run --rm -i mcp-base
-
-# With environment variables
-docker run --rm -i -e API_KEY=your_api_key_here mcp-base
-
-# Using Docker Compose
-docker-compose up --build
-```
-
-### Development Environment (Local Development)
+### Local Development
 
 ```bash
 # Install dependencies
 npm install
 
-# Start development mode
+# Start in development mode
 npm run dev
 
 # Run tests
@@ -59,234 +86,144 @@ npm test
 npm run build
 ```
 
-## MCP Client Configuration
+## Claude Desktop Configuration
 
-### Claude Desktop
+### 1. Configuration file location
 
-1. Edit Claude Desktop configuration file:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-2. Add the following configuration:
-
-#### Using Docker (Recommended)
+### 2. Docker (recommended)
 
 ```json
 {
   "mcpServers": {
-    "mcp-base": {
+    "zaim-api": {
       "command": "docker",
       "args": [
-        "run", 
-        "--rm", 
+        "run",
+        "--rm",
         "-i",
-        "mcp-base"
-      ]
+        "-e", "ZAIM_CONSUMER_KEY",
+        "-e", "ZAIM_CONSUMER_SECRET",
+        "-e", "ZAIM_ACCESS_TOKEN",
+        "-e", "ZAIM_ACCESS_TOKEN_SECRET",
+        "zaim-api-mcp"
+      ],
+      "env": {
+        "ZAIM_CONSUMER_KEY": "your_consumer_key",
+        "ZAIM_CONSUMER_SECRET": "your_consumer_secret",
+        "ZAIM_ACCESS_TOKEN": "your_access_token",
+        "ZAIM_ACCESS_TOKEN_SECRET": "your_access_token_secret"
+      }
     }
   }
 }
 ```
 
-#### Using local build
+When `-e` is given only a variable name, Docker passes the value from the launching process's environment (here, the values in `env`) into the container. This keeps credentials out of the command-line arguments, which is safer than `-e KEY=value`.
+
+### 3. Local build
 
 ```json
 {
   "mcpServers": {
-    "mcp-base": {
+    "zaim-api": {
       "command": "node",
-      "args": ["/path/to/mcp-base/dist/index.js"]
-    }
-  }
-}
-```
-
-#### For development environment
-
-```json
-{
-  "mcpServers": {
-    "mcp-base-dev": {
-      "command": "npx",
-      "args": ["ts-node", "/path/to/mcp-base/src/index.ts"],
-      "cwd": "/path/to/mcp-base"
-    }
-  }
-}
-```
-
-### Other MCP Clients
-
-Any MCP client that supports stdio transport:
-
-```bash
-# Run with Docker directly
-docker run --rm -i mcp-base
-```
-
-## Architecture
-
-The project follows a modular architecture:
-
-- `src/index.ts` - Main server entry point
-- `src/core/tool-handler.ts` - Core tool execution logic
-- `src/tools/` - Tool implementations organized by category
-- `src/tools/registry.ts` - Tool registration and discovery
-- `src/types/` - TypeScript type definitions
-
-## Adding New Tools
-
-1. Create a new tool file in `src/tools/[category]/[tool-name].ts`
-2. Define the tool schema, input/output types, and implementation
-3. Export the `toolDefinition` for registration
-4. Add the tool to `src/tools/registry.ts`
-5. Update the tool handler in `src/core/tool-handler.ts`
-
-## Tool Implementation Template
-
-```typescript
-import { z } from 'zod';
-import { ToolDefinition } from '../../types/mcp.js';
-
-// Input schema definition
-export const MyToolInputSchema = z.object({
-  parameter: z.string().describe('Parameter description'),
-  optionalParam: z.boolean().optional().default(false)
-}).strict();
-
-export type MyToolInput = z.infer<typeof MyToolInputSchema>;
-
-// MCP tool definition
-export const toolDefinition: ToolDefinition = {
-  name: 'my_tool',
-  description: 'Description of what the tool does',
-  inputSchema: {
-    type: 'object' as const,
-    properties: {
-      parameter: {
-        type: 'string',
-        description: 'Parameter description'
-      },
-      optionalParam: {
-        type: 'boolean',
-        description: 'Optional parameter description',
-        default: false
+      "args": ["/path/to/zaim-api-mcp/dist/index.js"],
+      "env": {
+        "ZAIM_CONSUMER_KEY": "your_consumer_key",
+        "ZAIM_CONSUMER_SECRET": "your_consumer_secret",
+        "ZAIM_ACCESS_TOKEN": "your_access_token",
+        "ZAIM_ACCESS_TOKEN_SECRET": "your_access_token_secret"
       }
-    },
-    required: ['parameter'],
-    additionalProperties: false
-  }
-};
-
-// Output schema definition
-export const MyToolOutputSchema = z.object({
-  result: z.string(),
-  timestamp: z.string().optional()
-});
-
-export type MyToolOutput = z.infer<typeof MyToolOutputSchema>;
-
-// Tool implementation
-export async function myTool(input: MyToolInput): Promise<MyToolOutput> {
-  return {
-    result: `Processed: ${input.parameter}`,
-    timestamp: new Date().toISOString()
-  };
-}
-```
-
-## Customization Guide
-
-### 1. Change Project Name
-
-Update `package.json` and `src/index.ts` with your project name:
-
-```typescript
-// src/index.ts
-this.server = new Server({
-  name: 'your-mcp-server',
-  version: '1.0.0',
-});
-```
-
-### 2. Add Custom Client
-
-Add your custom client in `src/core/tool-handler.ts`:
-
-```typescript
-export class ToolHandler {
-  private customClient: CustomClient | null = null;
-
-  private async ensureCustomClient(): Promise<CustomClient> {
-    if (!this.customClient) {
-      const apiKey = process.env.API_KEY;
-      if (!apiKey) {
-        throw new McpError(
-          ErrorCode.InvalidRequest,
-          'API_KEY environment variable is not set'
-        );
-      }
-      this.customClient = new CustomClient(apiKey);
     }
-    return this.customClient;
   }
 }
 ```
 
-### 3. Environment Variables
+## Usage Examples
 
-Add environment variable handling as needed:
-
-```bash
-# Example environment variables
-export API_KEY="your_api_key_here"
-export LOG_LEVEL="info"
+### Check authentication status
+```
+Use zaim_check_auth_status to check that authentication is configured correctly
 ```
 
-## Available Scripts
+### Get money records
+```
+Use zaim_get_money_records to get payment records for January 2024
+```
 
-- `npm run build` - Compile TypeScript to JavaScript
-- `npm run start` - Start production server
-- `npm run dev` - Start development server with ts-node
-- `npm run lint` - Run ESLint
-- `npm run typecheck` - Run TypeScript type checking
-- `npm test` - Run tests
-- `npm run test:watch` - Run tests in watch mode
-- `npm run test:coverage` - Run tests with coverage report
-- `npm run docker:build` - Build Docker image
-- `npm run docker:run` - Run Docker container
-- `npm run docker:dev` - Start development environment with Docker Compose
+### Record a payment
+```
+Use zaim_create_payment to record a 1,500 yen lunch today in the food category
+```
+
+### List categories
+```
+Use zaim_get_user_categories to show the available categories
+```
+
+## Limitations
+
+- The Zaim API has a rate limit of 60 requests per minute, but this server does not throttle requests or retry automatically
+- Configuration is by environment variables (credentials) only; there is no configuration file for timeouts or other settings
 
 ## Project Structure
 
 ```
-mcp-base/
+zaim-api-mcp/
 ├── src/
-│   ├── core/
-│   │   └── tool-handler.ts    # Core tool execution logic
-│   ├── tools/
-│   │   ├── registry.ts        # Tool registration
-│   │   └── example/
-│   │       └── example-tool.ts # Example tool implementation
-│   ├── types/
-│   │   └── mcp.ts            # Type definitions
-│   └── index.ts              # Main server entry point
-├── dist/                     # Compiled JavaScript output
-├── package.json              # Project dependencies and scripts
-├── tsconfig.json             # TypeScript configuration
-├── vitest.config.ts          # Test configuration
-├── CLAUDE.md                 # Development documentation
-└── README.md                 # This file
+│   ├── core/              # MCP server core
+│   │   ├── tool-handler.ts
+│   │   └── zaim-api-client.ts
+│   ├── tools/             # Tool implementations
+│   │   ├── auth/          # Authentication tools
+│   │   ├── money/         # Money record tools
+│   │   ├── master/        # Master data tools
+│   │   └── registry.ts    # Tool registry
+│   ├── types/             # Type definitions
+│   ├── utils/             # Utilities
+│   └── index.ts           # Entry point
+├── tests/                 # Tests
+├── Dockerfile             # Production image (multi-stage, runs as non-root user)
+└── docker-compose.yml     # Docker configuration
 ```
 
-## Contributing
+## Available Scripts
 
-1. Fork the repository
-2. Create a feature branch
-3. Add your changes with tests
-4. Run lint and type check
-5. Submit a pull request
+```bash
+npm run build          # Build TypeScript
+npm run start          # Start production server
+npm run dev            # Start development server
+npm run lint           # Run ESLint
+npm run typecheck      # Type check
+npm test               # Run tests
+npm run test:watch     # Run tests in watch mode
+npm run test:coverage  # Coverage report
+npm run docker:build   # Build Docker image
+npm run docker:run     # Run Docker container
+npm run docker:dev     # Start with Docker Compose
+```
+
+## Troubleshooting
+
+### Authentication errors
+- Check that the environment variables are set correctly
+- Check your application settings on the Zaim developer site
+- Check whether your access token is still valid
+
+### Docker
+- Check that the Docker daemon is running
+- Check that the environment variables are passed to the container
+- Check the logs for detailed error messages
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Links
+
+- [Zaim API documentation](https://dev.zaim.net/)
+- [MCP specification](https://modelcontextprotocol.io/)
+- [Claude Desktop](https://claude.ai/desktop)
