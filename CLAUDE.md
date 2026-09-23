@@ -49,7 +49,7 @@ npm run docker:dev    # Docker Compose開発環境
 **OAuth 1.0a統合**: Zaim APIとの安全な認証・通信
 **モジュラー設計**: 機能別ツール実装とレジストリパターン
 **型安全性**: TypeScriptとZodによる厳密な型安全性
-**包括的テスト**: 128テストケースによる高品質保証
+**包括的テスト**: 134テストケースによる品質保証
 
 ### ディレクトリ構造
 
@@ -61,7 +61,7 @@ zaim-api-mcp/
 │   │   └── zaim-api-client.ts    # OAuth 1.0a APIクライアント
 │   ├── tools/                    # 機能別ツール実装
 │   │   ├── auth/                 # 認証・ユーザー情報（2ツール）
-│   │   ├── money/                # 家計簿CRUD操作（5ツール）
+│   │   ├── money/                # 家計簿CRUD操作（6ツール）
 │   │   ├── master/               # マスターデータ取得（6ツール）
 │   │   └── registry.ts           # ツールレジストリ
 │   ├── types/                    # 型定義
@@ -72,8 +72,7 @@ zaim-api-mcp/
 │   │   ├── oauth-signature.ts    # OAuth署名生成
 │   │   └── token-storage.ts      # トークン永続化
 │   └── index.ts                  # サーバーエントリーポイント
-├── tests/                        # テストスイート（128テスト）
-├── config/                       # 設定ファイル
+├── tests/                        # テストスイート（134テスト）
 └── docker-compose.yml           # 開発環境
 ```
 
@@ -83,7 +82,7 @@ zaim-api-mcp/
 - `zaim_check_auth_status`: OAuth認証状態確認
 - `zaim_get_user_info`: ユーザー情報取得
 
-**家計簿データツール（5個）**
+**家計簿データツール（6個）**
 - `zaim_get_money_records`: データ検索・取得（フィルタ・ページネーション対応）
 - `zaim_create_payment`: 支出データ作成
 - `zaim_create_income`: 収入データ作成
@@ -131,7 +130,7 @@ npm test -- --grep "認証"
 
 ### テスト構造
 
-- **テスト総数**: 128テストケース
+- **テスト総数**: 134テストケース
 - **カバレッジ**: 95%以上を維持
 - **モック**: vi.mock()による外部依存関係のモック
 - **統合テスト**: エンドツーエンドのツール実行テスト
@@ -149,7 +148,6 @@ ZAIM_ACCESS_TOKEN_SECRET=your_access_token_secret
 
 ### 設定ファイル
 
-- `config/zaim-config.json`: API設定、レート制限、キャッシュ設定
 - `.eslintrc.json`: コード品質設定
 - `tsconfig.json`: TypeScript設定
 - `vitest.config.ts`: テスト設定
@@ -180,9 +178,9 @@ ZAIM_ACCESS_TOKEN_SECRET=your_access_token_secret
 ### 重要な実装パターン
 
 **OAuth認証の実装**
-- `ZaimApiClient.ensureAuthenticated()`で認証確認
+- `TokenStorage.createZaimApiClient()`で環境変数から認証情報を読み込みクライアントを生成
 - OAuth 1.0a署名は`oauth-signature.ts`で自動生成
-- トークンの永続化は`token-storage.ts`で管理
+- 認証情報は環境変数で渡し、`token-storage.ts`で読み込み・検証する
 
 **エラーハンドリング**
 - MCPエラー（`McpError`）でクライアントに適切な情報を返す
@@ -192,7 +190,8 @@ ZAIM_ACCESS_TOKEN_SECRET=your_access_token_secret
 **レスポンス形式**
 - 全ツールで統一されたJSON形式を使用
 - `content`配列内に`TextContent`型でデータを格納
-- エラー時は`isError`フラグとエラーメッセージを含める
+- Zaim APIのエラーは各ツールが`success: false`と`message`を含むJSONで返す
+- 入力バリデーションエラーは`McpError`（`InvalidParams`）として送出する
 
 ## ツール実装テンプレート
 
@@ -238,8 +237,8 @@ export type MyToolOutput = z.infer<typeof MyToolOutputSchema>;
 
 export async function myTool(input: MyToolInput): Promise<MyToolOutput> {
   // Zaim APIクライアントの使用例
-  // const client = await ZaimApiClient.getInstance();
-  // const response = await client.someApiCall(input.parameter);
+  // const client = TokenStorage.createZaimApiClient();
+  // const response = await client.get('/v2/home/some-endpoint');
   
   return {
     result: `処理結果: ${input.parameter}`,
@@ -259,29 +258,28 @@ export async function myTool(input: MyToolInput): Promise<MyToolOutput> {
 
 ### 認証関連
 - `src/utils/oauth-signature.ts`: RFC 5849準拠のOAuth署名生成
-- `src/utils/token-storage.ts`: トークンの永続化とライフサイクル管理
+- `src/utils/token-storage.ts`: 環境変数からの認証情報の読み込みと検証
 - `src/types/oauth.ts`: OAuth関連の型定義
 
 ### API関連
 - `src/types/zaim-api.ts`: Zaim APIレスポンスの型定義
-- `config/zaim-config.json`: API設定（タイムアウト、レート制限等）
 
 ### 開発時の重要なポイント
 
 **OAuth 1.0a認証フロー**
-1. Consumer Key/Secretでリクエストトークン取得
-2. ユーザーがブラウザで認証
-3. アクセストークン交換
-4. 永続化されたトークンでAPI呼び出し
+1. Consumer Key/Secretでリクエストトークン取得（サーバー外で実施）
+2. ユーザーがブラウザで認証（サーバー外で実施）
+3. アクセストークン交換（サーバー外で実施）
+4. 取得したトークンを環境変数で渡してAPI呼び出し
 
 **レート制限の考慮**
 - Zaim APIは60リクエスト/分の制限
-- `ZaimApiClient`で自動的にレート制限を管理
-- 必要に応じてリトライ機構を実装
+- 現状`ZaimApiClient`にレート制限やリトライの仕組みはない
+- 大量のリクエストを行う機能を追加する場合は制御の実装を検討する
 
 **エラーハンドリングのベストプラクティス**
 - 認証エラー（401）: トークン再取得が必要
-- レート制限エラー（429）: 自動リトライ
+- レート制限エラー（429）: 現状は自動リトライせずエラーとして返す
 - その他のAPIエラー: 適切なMCPエラーに変換
 
 ## コミットガイドライン
@@ -350,18 +348,25 @@ docs: README.mdにトラブルシューティングセクションを追加
 ```bash
 # 1. プロジェクトをクローン
 git clone [this-repo]
-cd mcp-base
+cd zaim-api-mcp
 
 # 2. Dockerイメージをビルド
-docker build -t mcp-base .
+docker build -t zaim-api-mcp .
 
 # 3. Claude Desktop設定
 # ~/Library/Application Support/Claude/claude_desktop_config.json
 {
   "mcpServers": {
-    "mcp-base": {
+    "zaim-api": {
       "command": "docker",
-      "args": ["run", "--rm", "-i", "mcp-base"]
+      "args": [
+        "run", "--rm", "-i",
+        "-e", "ZAIM_CONSUMER_KEY=your_consumer_key",
+        "-e", "ZAIM_CONSUMER_SECRET=your_consumer_secret",
+        "-e", "ZAIM_ACCESS_TOKEN=your_access_token",
+        "-e", "ZAIM_ACCESS_TOKEN_SECRET=your_access_token_secret",
+        "zaim-api-mcp"
+      ]
     }
   }
 }
