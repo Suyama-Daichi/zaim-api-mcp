@@ -7,14 +7,14 @@ import type { ZaimMoney } from '../../types/zaim-api.js';
  * 記録更新ツールの入力スキーマ
  */
 export const UpdateMoneyRecordInputSchema = z.object({
-  id: z.number().describe('更新する記録のID'),
+  id: z.number().int().positive().describe('更新する記録のID'),
   mode: z.enum(['payment', 'income', 'transfer']).describe('記録の種類'),
   amount: z.number().positive().optional().describe('金額'),
-  date: z.string().optional().describe('日付（YYYY-MM-DD形式）'),
-  category_id: z.number().optional().describe('カテゴリID'),
-  genre_id: z.number().optional().describe('ジャンルID'),
-  from_account_id: z.number().optional().describe('出金元口座ID（支出・振替の場合）'),
-  to_account_id: z.number().optional().describe('入金先口座ID（収入・振替の場合）'),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD形式で指定してください').optional().describe('日付（YYYY-MM-DD形式）'),
+  category_id: z.number().int().nonnegative().optional().describe('カテゴリID'),
+  genre_id: z.number().int().nonnegative().optional().describe('ジャンルID'),
+  from_account_id: z.number().int().nonnegative().optional().describe('出金元口座ID（支出・振替の場合）'),
+  to_account_id: z.number().int().nonnegative().optional().describe('入金先口座ID（収入・振替の場合）'),
   place: z.string().optional().describe('場所・店舗名'),
   comment: z.string().optional().describe('メモ'),
   name: z.string().optional().describe('品名')
@@ -51,7 +51,7 @@ export const updateMoneyRecordToolDefinition: ToolDefinition = {
     type: 'object' as const,
     properties: {
       id: {
-        type: 'number',
+        type: 'integer',
         description: '更新する記録のID'
       },
       mode: {
@@ -68,19 +68,19 @@ export const updateMoneyRecordToolDefinition: ToolDefinition = {
         description: '日付（YYYY-MM-DD形式）'
       },
       category_id: {
-        type: 'number',
+        type: 'integer',
         description: 'カテゴリID'
       },
       genre_id: {
-        type: 'number',
+        type: 'integer',
         description: 'ジャンルID（paymentモードの場合は必須）'
       },
       from_account_id: {
-        type: 'number',
+        type: 'integer',
         description: '出金元口座ID（支出・振替の場合）'
       },
       to_account_id: {
-        type: 'number',
+        type: 'integer',
         description: '入金先口座ID（収入・振替の場合）'
       },
       place: {

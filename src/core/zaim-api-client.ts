@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { generateOAuthSignature } from '../utils/oauth-signature.js';
 import type { 
   OAuthConfig, 
@@ -265,8 +266,7 @@ export class ZaimApiClient {
    * @returns nonce文字列
    */
   private generateNonce(): string {
-    return Math.random().toString(36).substring(2, 15) + 
-           Math.random().toString(36).substring(2, 15);
+    return crypto.randomBytes(16).toString('hex');
   }
 
   /**

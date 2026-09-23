@@ -18,6 +18,7 @@ import {
 import {
   getMoneyRecordsTool,
   GetMoneyRecordsInputSchema,
+  type GetMoneyRecordsInput
 } from '../tools/money/money-read-tools.js';
 
 // 家計簿データ作成ツール
@@ -72,7 +73,7 @@ import {
 export class ToolHandler {
   private validateAndParseInput<T>(
     args: unknown,
-    schema: z.ZodType<T>,
+    schema: z.ZodType<T, z.ZodTypeDef, unknown>,
     toolName: string
   ): T {
     try {
@@ -113,7 +114,7 @@ export class ToolHandler {
 
       // 家計簿データ取得ツール
       case 'zaim_get_money_records': {
-        const input = GetMoneyRecordsInputSchema.parse(args || {});
+        const input = this.validateAndParseInput<GetMoneyRecordsInput>(args, GetMoneyRecordsInputSchema, name);
         const result = await getMoneyRecordsTool(input);
         return this.formatResponse(result);
       }

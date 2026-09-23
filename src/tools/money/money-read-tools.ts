@@ -10,20 +10,20 @@ export const GetMoneyRecordsInputSchema = z.object({
   mode: z.enum(['payment', 'income', 'transfer'])
     .optional()
     .describe('記録の種類（支出/収入/振替）'),
-  start_date: z.string()
+  start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD形式で指定してください')
     .optional()
     .describe('開始日（YYYY-MM-DD形式）'),
-  end_date: z.string()
+  end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD形式で指定してください')
     .optional()
     .describe('終了日（YYYY-MM-DD形式）'),
-  category_id: z.number()
+  category_id: z.number().int().nonnegative()
     .optional()
     .describe('カテゴリID'),
-  limit: z.number()
+  limit: z.number().int().min(1).max(100)
     .optional()
     .default(20)
     .describe('取得件数（最大100件）'),
-  page: z.number()
+  page: z.number().int().min(1)
     .optional()
     .default(1)
     .describe('ページ番号（1から開始）')
@@ -66,16 +66,16 @@ export const getMoneyRecordsToolDefinition: ToolDefinition = {
         description: '終了日（YYYY-MM-DD形式）'
       },
       category_id: {
-        type: 'number',
+        type: 'integer',
         description: 'カテゴリID'
       },
       limit: {
-        type: 'number',
+        type: 'integer',
         description: '取得件数（最大100件）',
         default: 20
       },
       page: {
-        type: 'number',
+        type: 'integer',
         description: 'ページ番号（1から開始）',
         default: 1
       }

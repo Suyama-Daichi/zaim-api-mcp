@@ -1,21 +1,27 @@
-FROM node:22-alpine
+# ビルドステージ
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm ci --only=production
-
-# Copy source code
-COPY . .
-
-# Build the application
+COPY tsconfig.json ./
+COPY src ./src
 RUN npm run build
 
-# Remove dev dependencies and source files
-RUN rm -rf src/ tsconfig.json vitest.config.ts && \
-    npm prune --production
+# 実行ステージ
+FROM node:22-alpine
+
+ENV NODE_ENV=production
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+COPY --from=build /app/dist ./dist
+
+# root ではなく非特権ユーザーで実行
+USER node
 
 ENTRYPOINT ["node", "dist/index.js"]

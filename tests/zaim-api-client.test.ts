@@ -209,6 +209,25 @@ describe('ZaimApiClient', () => {
       expect(authHeader).toContain('oauth_timestamp=');
       expect(authHeader).toContain('oauth_nonce=');
     });
+
+    it('should generate a 128-bit hex nonce that differs per request', async () => {
+      const mockResponse = {
+        ok: true,
+        json: () => Promise.resolve({})
+      };
+      mockFetch.mockResolvedValue(mockResponse);
+
+      await client.get('/v2/home/user/verify');
+      await client.get('/v2/home/user/verify');
+
+      const nonces = mockFetch.mock.calls.map(([, options]) =>
+        options.headers.Authorization.match(/oauth_nonce="([^"]+)"/)?.[1]
+      );
+
+      expect(nonces[0]).toMatch(/^[0-9a-f]{32}$/);
+      expect(nonces[1]).toMatch(/^[0-9a-f]{32}$/);
+      expect(nonces[0]).not.toBe(nonces[1]);
+    });
   });
 
   describe('error handling', () => {

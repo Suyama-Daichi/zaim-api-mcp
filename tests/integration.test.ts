@@ -195,5 +195,34 @@ describe('Integration Tests', () => {
         })
       ).rejects.toThrow('Invalid parameters');
     });
+
+    it('should reject invalid date format', async () => {
+      await expect(
+        toolHandler.executeTool('zaim_create_payment', {
+          amount: 1000,
+          date: '2024/01/01',
+          category_id: 101,
+          genre_id: 10101
+        })
+      ).rejects.toThrow('Invalid parameters');
+    });
+
+    it('should reject non-integer or non-positive record ids', async () => {
+      await expect(
+        toolHandler.executeTool('zaim_delete_money_record', { id: 1.5, mode: 'payment' })
+      ).rejects.toThrow('Invalid parameters');
+      await expect(
+        toolHandler.executeTool('zaim_delete_money_record', { id: -1, mode: 'payment' })
+      ).rejects.toThrow('Invalid parameters');
+    });
+
+    it('should reject out-of-range pagination parameters', async () => {
+      await expect(
+        toolHandler.executeTool('zaim_get_money_records', { limit: 101 })
+      ).rejects.toThrow('Invalid parameters');
+      await expect(
+        toolHandler.executeTool('zaim_get_money_records', { page: 0 })
+      ).rejects.toThrow('Invalid parameters');
+    });
   });
 });

@@ -7,7 +7,7 @@ import type { ZaimMoney } from '../../types/zaim-api.js';
  * 記録削除ツールの入力スキーマ
  */
 export const DeleteMoneyRecordInputSchema = z.object({
-  id: z.number().describe('削除する記録のID'),
+  id: z.number().int().positive().describe('削除する記録のID'),
   mode: z.enum(['payment', 'income', 'transfer']).describe('記録の種類')
 }).strict();
 
@@ -34,7 +34,7 @@ export const deleteMoneyRecordToolDefinition: ToolDefinition = {
     type: 'object' as const,
     properties: {
       id: {
-        type: 'number',
+        type: 'integer',
         description: '削除する記録のID'
       },
       mode: {

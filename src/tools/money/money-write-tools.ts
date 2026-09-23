@@ -8,10 +8,10 @@ import type { ZaimMoney } from '../../types/zaim-api.js';
  */
 export const CreatePaymentInputSchema = z.object({
   amount: z.number().positive().describe('金額'),
-  date: z.string().describe('日付（YYYY-MM-DD形式）'),
-  category_id: z.number().describe('カテゴリID'),
-  genre_id: z.number().describe('ジャンルID'),
-  from_account_id: z.number().optional().describe('出金元口座ID'),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD形式で指定してください').describe('日付（YYYY-MM-DD形式）'),
+  category_id: z.number().int().nonnegative().describe('カテゴリID'),
+  genre_id: z.number().int().nonnegative().describe('ジャンルID'),
+  from_account_id: z.number().int().nonnegative().optional().describe('出金元口座ID'),
   place: z.string().optional().describe('場所・店舗名'),
   comment: z.string().optional().describe('メモ'),
   name: z.string().optional().describe('品名')
@@ -24,9 +24,9 @@ export type CreatePaymentInput = z.infer<typeof CreatePaymentInputSchema>;
  */
 export const CreateIncomeInputSchema = z.object({
   amount: z.number().positive().describe('金額'),
-  date: z.string().describe('日付（YYYY-MM-DD形式）'),
-  category_id: z.number().describe('カテゴリID'),
-  to_account_id: z.number().optional().describe('入金先口座ID'),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD形式で指定してください').describe('日付（YYYY-MM-DD形式）'),
+  category_id: z.number().int().nonnegative().describe('カテゴリID'),
+  to_account_id: z.number().int().nonnegative().optional().describe('入金先口座ID'),
   place: z.string().optional().describe('場所・会社名'),
   comment: z.string().optional().describe('メモ')
 }).strict();
@@ -38,9 +38,9 @@ export type CreateIncomeInput = z.infer<typeof CreateIncomeInputSchema>;
  */
 export const CreateTransferInputSchema = z.object({
   amount: z.number().positive().describe('金額'),
-  date: z.string().describe('日付（YYYY-MM-DD形式）'),
-  from_account_id: z.number().describe('出金元口座ID'),
-  to_account_id: z.number().describe('入金先口座ID'),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD形式で指定してください').describe('日付（YYYY-MM-DD形式）'),
+  from_account_id: z.number().int().nonnegative().describe('出金元口座ID'),
+  to_account_id: z.number().int().nonnegative().describe('入金先口座ID'),
   comment: z.string().optional().describe('メモ')
 }).strict();
 
@@ -75,15 +75,15 @@ export const createPaymentToolDefinition: ToolDefinition = {
         description: '日付（YYYY-MM-DD形式）'
       },
       category_id: {
-        type: 'number',
+        type: 'integer',
         description: 'カテゴリID'
       },
       genre_id: {
-        type: 'number',
+        type: 'integer',
         description: 'ジャンルID'
       },
       from_account_id: {
-        type: 'number',
+        type: 'integer',
         description: '出金元口座ID'
       },
       place: {
@@ -119,11 +119,11 @@ export const createIncomeToolDefinition: ToolDefinition = {
         description: '日付（YYYY-MM-DD形式）'
       },
       category_id: {
-        type: 'number',
+        type: 'integer',
         description: 'カテゴリID'
       },
       to_account_id: {
-        type: 'number',
+        type: 'integer',
         description: '入金先口座ID'
       },
       place: {
@@ -155,11 +155,11 @@ export const createTransferToolDefinition: ToolDefinition = {
         description: '日付（YYYY-MM-DD形式）'
       },
       from_account_id: {
-        type: 'number',
+        type: 'integer',
         description: '出金元口座ID'
       },
       to_account_id: {
-        type: 'number',
+        type: 'integer',
         description: '入金先口座ID'
       },
       comment: {
