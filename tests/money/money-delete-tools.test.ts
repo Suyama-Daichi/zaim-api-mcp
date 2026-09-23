@@ -222,7 +222,7 @@ describe('Money Delete Tools', () => {
       expect(properties).toHaveProperty('mode');
       
       // Check id property
-      expect(properties.id?.type).toBe('number');
+      expect(properties.id?.type).toBe('integer');
       expect(properties.id?.description).toContain('削除する記録のID');
       
       // Check mode property

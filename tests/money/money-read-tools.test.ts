@@ -280,16 +280,16 @@ describe('Money Read Tools', () => {
               description: '終了日（YYYY-MM-DD形式）'
             },
             category_id: {
-              type: 'number',
+              type: 'integer',
               description: 'カテゴリID'
             },
             limit: {
-              type: 'number',
+              type: 'integer',
               description: '取得件数（最大100件）',
               default: 20
             },
             page: {
-              type: 'number',
+              type: 'integer',
               description: 'ページ番号（1から開始）',
               default: 1
             }

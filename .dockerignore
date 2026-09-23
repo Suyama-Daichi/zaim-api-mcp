@@ -1,0 +1,18 @@
+# 認証情報・環境変数ファイルをイメージに含めない
+.env
+.env.*
+*.env
+config/
+
+# ビルド・依存関係
+node_modules/
+dist/
+coverage/
+
+# 開発用ファイル
+.git/
+.github/
+.vscode/
+.idea/
+tests/
+*.log

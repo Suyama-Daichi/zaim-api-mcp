@@ -16,10 +16,17 @@ class ZaimMCPServer {
   private toolHandler: ToolHandler;
 
   constructor() {
-    this.server = new Server({
-      name: 'zaim-api-mcp',
-      version: '1.0.0',
-    });
+    this.server = new Server(
+      {
+        name: 'zaim-api-mcp',
+        version: '1.0.0',
+      },
+      {
+        capabilities: {
+          tools: {},
+        },
+      }
+    );
 
     this.toolHandler = new ToolHandler();
     this.setupHandlers();
