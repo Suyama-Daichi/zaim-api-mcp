@@ -66,7 +66,7 @@ describe('Money Read Tools', () => {
       const input: GetMoneyRecordsInput = {};
       const result = await getMoneyRecordsTool(input);
 
-      expect(mockClient.get).toHaveBeenCalledWith('/v2/home/money', {});
+      expect(mockClient.get).toHaveBeenCalledWith('/v2/home/money', { mapping: 1 });
       expect(result).toEqual({
         records: mockResponse.money,
         count: 2,
@@ -96,6 +96,7 @@ describe('Money Read Tools', () => {
       const result = await getMoneyRecordsTool(input);
 
       expect(mockClient.get).toHaveBeenCalledWith('/v2/home/money', {
+        mapping: 1,
         start_date: '2024-01-01',
         end_date: '2024-01-31'
       });
@@ -122,6 +123,7 @@ describe('Money Read Tools', () => {
       const result = await getMoneyRecordsTool(input);
 
       expect(mockClient.get).toHaveBeenCalledWith('/v2/home/money', {
+        mapping: 1,
         mode: 'payment'
       });
       expect(result.records[0].mode).toBe('payment');
@@ -146,6 +148,7 @@ describe('Money Read Tools', () => {
       const result = await getMoneyRecordsTool(input);
 
       expect(mockClient.get).toHaveBeenCalledWith('/v2/home/money', {
+        mapping: 1,
         limit: 20,
         page: 2
       });
@@ -173,6 +176,7 @@ describe('Money Read Tools', () => {
       const result = await getMoneyRecordsTool(input);
 
       expect(mockClient.get).toHaveBeenCalledWith('/v2/home/money', {
+        mapping: 1,
         category_id: 101
       });
       expect(result.records[0].category_id).toBe(101);
@@ -248,6 +252,7 @@ describe('Money Read Tools', () => {
       const result = await getMoneyRecordsTool(input);
 
       expect(mockClient.get).toHaveBeenCalledWith('/v2/home/money', {
+        mapping: 1,
         mode: 'payment',
         start_date: '2024-01-01',
         end_date: '2024-01-31',

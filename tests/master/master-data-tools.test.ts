@@ -69,7 +69,7 @@ describe('Master Data Tools', () => {
 
       const result = await getUserCategoriesTool({});
 
-      expect(mockClient.get).toHaveBeenCalledWith('/v2/home/category');
+      expect(mockClient.get).toHaveBeenCalledWith('/v2/home/category', { mapping: 1 });
       expect(result).toEqual({
         categories: mockResponse.categories,
         count: 2,
@@ -119,7 +119,7 @@ describe('Master Data Tools', () => {
 
       const result = await getUserGenresTool({});
 
-      expect(mockClient.get).toHaveBeenCalledWith('/v2/home/genre');
+      expect(mockClient.get).toHaveBeenCalledWith('/v2/home/genre', { mapping: 1 });
       expect(result).toEqual({
         genres: mockResponse.genres,
         count: 2,
@@ -167,7 +167,7 @@ describe('Master Data Tools', () => {
 
       const result = await getUserAccountsTool({});
 
-      expect(mockClient.get).toHaveBeenCalledWith('/v2/home/account');
+      expect(mockClient.get).toHaveBeenCalledWith('/v2/home/account', { mapping: 1 });
       expect(result).toEqual({
         accounts: mockResponse.accounts,
         count: 2,
@@ -201,7 +201,7 @@ describe('Master Data Tools', () => {
 
       const result = await getDefaultCategoriesByModeTool({ mode: 'payment' });
 
-      expect(mockClient.get).toHaveBeenCalledWith('/v2/category', { mode: 'payment' });
+      expect(mockClient.get).toHaveBeenCalledWith('/v2/category', { mapping: 1, mode: 'payment' });
       expect(result).toEqual({
         categories: mockResponse.categories,
         count: 2,
@@ -226,7 +226,7 @@ describe('Master Data Tools', () => {
 
       const result = await getDefaultCategoriesByModeTool({ mode: 'income' });
 
-      expect(mockClient.get).toHaveBeenCalledWith('/v2/category', { mode: 'income' });
+      expect(mockClient.get).toHaveBeenCalledWith('/v2/category', { mapping: 1, mode: 'income' });
       expect(result.count).toBe(1);
     });
   });
@@ -253,7 +253,7 @@ describe('Master Data Tools', () => {
 
       const result = await getDefaultGenresByModeTool({ mode: 'payment' });
 
-      expect(mockClient.get).toHaveBeenCalledWith('/v2/genre', { mode: 'payment' });
+      expect(mockClient.get).toHaveBeenCalledWith('/v2/genre', { mapping: 1, mode: 'payment' });
       expect(result).toEqual({
         genres: mockResponse.genres,
         count: 2,
@@ -285,7 +285,7 @@ describe('Master Data Tools', () => {
 
       const result = await getCurrenciesTool({});
 
-      expect(mockClient.get).toHaveBeenCalledWith('/v2/currency');
+      expect(mockClient.get).toHaveBeenCalledWith('/v2/currency', { mapping: 1 });
       expect(result).toEqual({
         currencies: mockResponse.currencies,
         count: 2,
