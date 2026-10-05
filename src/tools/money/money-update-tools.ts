@@ -17,7 +17,8 @@ export const UpdateMoneyRecordInputSchema = z.object({
   to_account_id: z.number().int().nonnegative().optional().describe('入金先口座ID（収入・振替の場合）'),
   place: z.string().optional().describe('場所・店舗名'),
   comment: z.string().optional().describe('メモ'),
-  name: z.string().optional().describe('品名')
+  name: z.string().optional().describe('品名'),
+  receipt_id: z.number().int().positive().optional().describe('レシートID（同じ値を指定した支出は1つの履歴に品目としてまとまる。APIでは発番されないため、呼び出し側で生成した整数を使う）（支出のみ）')
 }).strict().refine((data) => {
   // paymentモードの場合はgenre_idが必須
   if (data.mode === 'payment' && data.genre_id === undefined) {
@@ -94,6 +95,10 @@ export const updateMoneyRecordToolDefinition: ToolDefinition = {
       name: {
         type: 'string',
         description: '品名'
+      },
+      receipt_id: {
+        type: 'integer',
+        description: 'レシートID（同じ値を指定した支出は1つの履歴に品目としてまとまる。APIでは発番されないため、呼び出し側で生成した整数を使う）（支出のみ）'
       }
     },
     required: ['id', 'mode'],
@@ -122,6 +127,7 @@ export async function updateMoneyRecordTool(input: UpdateMoneyRecordInput): Prom
     if (input.place !== undefined) body.place = input.place;
     if (input.comment !== undefined) body.comment = input.comment;
     if (input.name !== undefined) body.name = input.name;
+    if (input.receipt_id !== undefined) body.receipt_id = input.receipt_id;
     
     // モードに応じたエンドポイントを選択
     const endpoint = `/v2/home/money/${input.mode}/${input.id}`;

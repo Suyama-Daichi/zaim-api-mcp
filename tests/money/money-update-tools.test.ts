@@ -75,6 +75,24 @@ describe('Money Update Tools', () => {
       });
     });
 
+    it('should send receipt_id when updating a payment', async () => {
+      mockClient.put.mockResolvedValue({ money: { id: 99, mode: 'payment' } });
+
+      const result = await updateMoneyRecordTool({
+        id: 99,
+        mode: 'payment',
+        genre_id: 10101,
+        receipt_id: 1234567890
+      });
+
+      expect(mockClient.put).toHaveBeenCalledWith('/v2/home/money/payment/99', {
+        mapping: 1,
+        genre_id: 10101,
+        receipt_id: 1234567890
+      });
+      expect(result.success).toBe(true);
+    });
+
     it('should update an income record', async () => {
       const mockResponse = {
         money: {
