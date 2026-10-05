@@ -151,6 +151,13 @@ describe('Money Write Tools', () => {
       expect(parsed.success).toBe(false);
     });
 
+    it('should coerce string receipt_id from clients with stale schemas', () => {
+      const parsed = CreatePaymentInputSchema.safeParse({
+        amount: 100, date: '2026-10-04', category_id: 101, genre_id: 10101, receipt_id: '1234567890'
+      });
+      expect(parsed.success && parsed.data.receipt_id).toBe(1234567890);
+    });
+
     it('should handle API errors', async () => {
       const mockError = new Error('Zaim API Error: 400 - Invalid request');
       mockClient.post.mockRejectedValue(mockError);

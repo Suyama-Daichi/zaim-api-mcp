@@ -18,7 +18,7 @@ export const UpdateMoneyRecordInputSchema = z.object({
   place: z.string().optional().describe('場所・店舗名'),
   comment: z.string().optional().describe('メモ'),
   name: z.string().optional().describe('品名'),
-  receipt_id: z.number().int().positive().optional().describe('レシートID（同じ値を指定した支出は1つの履歴に品目としてまとまる。APIでは発番されないため、呼び出し側で生成した整数を使う）（支出のみ）')
+  receipt_id: z.coerce.number().int().positive().optional().describe('レシートID（同じ値を指定した支出は1つの履歴に品目としてまとまる。APIでは発番されないため、呼び出し側で生成した整数を使う）（支出のみ）')
 }).strict().refine((data) => {
   // paymentモードの場合はgenre_idが必須
   if (data.mode === 'payment' && data.genre_id === undefined) {
