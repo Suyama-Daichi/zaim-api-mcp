@@ -161,6 +161,12 @@ Use zaim_get_money_records to get payment records for January 2024
 Use zaim_create_payment to record a 1,500 yen lunch today in the food category
 ```
 
+### Record a receipt item by item
+Payments registered with the same `receipt_id` are grouped into a single entry in Zaim's itemized view. The API does not issue `receipt_id`, so generate an integer on the caller side. Values below 2,147,483,647 are recommended.
+```
+Use zaim_create_payment to register each item on this receipt with the same receipt_id
+```
+
 ### List categories
 ```
 Use zaim_get_user_categories to show the available categories
@@ -169,6 +175,8 @@ Use zaim_get_user_categories to show the available categories
 ## Limitations
 
 - The Zaim API has a rate limit of 60 requests per minute, but this server does not throttle requests or retry automatically
+- Grouping by `receipt_id` has been confirmed only for new records (`zaim_create_payment`). Setting it later with `zaim_update_money_record` is unverified
+- Amounts must be positive. Subtract discounts from the discounted item's amount
 - Configuration is by environment variables (credentials) only; there is no configuration file for timeouts or other settings
 
 ## Project Structure
