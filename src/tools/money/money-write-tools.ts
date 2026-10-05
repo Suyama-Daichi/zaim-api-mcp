@@ -15,7 +15,7 @@ export const CreatePaymentInputSchema = z.object({
   place: z.string().optional().describe('場所・店舗名'),
   comment: z.string().optional().describe('メモ'),
   name: z.string().optional().describe('品名'),
-  receipt_id: z.number().int().positive().optional().describe('レシートID（同じ値を指定した支出は1つの履歴に品目としてまとまる。APIでは発番されないため、呼び出し側で生成した整数を使う）')
+  receipt_id: z.coerce.number().int().positive().optional().describe('レシートID（同じ値を指定した支出は1つの履歴に品目としてまとまる。APIでは発番されないため、呼び出し側で生成した整数を使う）')
 }).strict();
 
 export type CreatePaymentInput = z.infer<typeof CreatePaymentInputSchema>;
