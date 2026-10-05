@@ -14,7 +14,8 @@ export const CreatePaymentInputSchema = z.object({
   from_account_id: z.number().int().nonnegative().optional().describe('出金元口座ID'),
   place: z.string().optional().describe('場所・店舗名'),
   comment: z.string().optional().describe('メモ'),
-  name: z.string().optional().describe('品名')
+  name: z.string().optional().describe('品名'),
+  receipt_id: z.number().int().positive().optional().describe('レシートID（同じ値を指定した支出は1つの履歴に品目としてまとまる。APIでは発番されないため、呼び出し側で生成した整数を使う）')
 }).strict();
 
 export type CreatePaymentInput = z.infer<typeof CreatePaymentInputSchema>;
@@ -97,6 +98,10 @@ export const createPaymentToolDefinition: ToolDefinition = {
       name: {
         type: 'string',
         description: '品名'
+      },
+      receipt_id: {
+        type: 'integer',
+        description: 'レシートID（同じ値を指定した支出は1つの履歴に品目としてまとまる。APIでは発番されないため、呼び出し側で生成した整数を使う）'
       }
     },
     required: ['amount', 'date', 'category_id', 'genre_id'],
@@ -191,6 +196,7 @@ export async function createPaymentTool(input: CreatePaymentInput): Promise<Crea
     if (input.place !== undefined) body.place = input.place;
     if (input.comment !== undefined) body.comment = input.comment;
     if (input.name !== undefined) body.name = input.name;
+    if (input.receipt_id !== undefined) body.receipt_id = input.receipt_id;
     
     const response = await client.post('/v2/home/money/payment', body);
     

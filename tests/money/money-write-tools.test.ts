@@ -119,6 +119,38 @@ describe('Money Write Tools', () => {
       expect(result.success).toBe(true);
     });
 
+    it('should send receipt_id to group items into one receipt', async () => {
+      mockClient.post.mockResolvedValue({ money: { id: 1, mode: 'payment' } });
+
+      const input: CreatePaymentInput = {
+        amount: 208,
+        date: '2026-10-04',
+        category_id: 101,
+        genre_id: 10101,
+        name: '牛乳',
+        receipt_id: 1234567890
+      };
+      const result = await createPaymentTool(input);
+
+      expect(mockClient.post).toHaveBeenCalledWith('/v2/home/money/payment', {
+        mapping: 1,
+        amount: 208,
+        date: '2026-10-04',
+        category_id: 101,
+        genre_id: 10101,
+        name: '牛乳',
+        receipt_id: 1234567890
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject non-integer receipt_id', () => {
+      const parsed = CreatePaymentInputSchema.safeParse({
+        amount: 100, date: '2026-10-04', category_id: 101, genre_id: 10101, receipt_id: 1.5
+      });
+      expect(parsed.success).toBe(false);
+    });
+
     it('should handle API errors', async () => {
       const mockError = new Error('Zaim API Error: 400 - Invalid request');
       mockClient.post.mockRejectedValue(mockError);
