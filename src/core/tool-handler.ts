@@ -73,7 +73,7 @@ import {
 export class ToolHandler {
   private validateAndParseInput<T>(
     args: unknown,
-    schema: z.ZodType<T, z.ZodTypeDef, unknown>,
+    schema: z.ZodType<T, unknown>,
     toolName: string
   ): T {
     try {
