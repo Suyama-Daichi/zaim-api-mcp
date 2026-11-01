@@ -2,6 +2,14 @@
 
 [English README](README.en.md)
 
+> [!WARNING]
+> **Zaim API は 2026年12月7日（月）中に提供を終了します。** 後継の API はなく、停止後はこのサーバーのツールがすべて使えなくなります。くふう Zaim のアプリと Web 版、保存済みの家計簿データはそのまま残ります。
+>
+> - 2026年11月9日（月）: Zaim Developers Center での新規アプリ登録の受付が終わります。以降は、アプリを登録していない人がこのサーバーを使い始めることはできません。
+> - 2027年1月7日（木）まで: API 利用規約第21条に基づき、取得したデータと認証情報（`.env`、Cloudflare Workers のシークレット、Claude Desktop の設定に書いた `ZAIM_*` など）を削除してください。
+>
+> 詳しくは公式のお知らせ「[「Zaim API」の提供終了について](https://content.zaim.net/notices/show/2280)」を参照してください。
+
 Zaim APIとの連携を可能にするMCP (Model Context Protocol) サーバーです。OAuth 1.0a認証を使用してZaimの家計簿データの取得・操作を行います。
 
 ## 特徴
