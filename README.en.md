@@ -2,6 +2,14 @@
 
 [日本語 README](README.md)
 
+> [!WARNING]
+> **The Zaim API will be shut down during December 7, 2026 (JST).** There is no successor API, and every tool in this server will stop working after the shutdown. The Kufu Zaim apps, the web service, and your saved budget data are not affected.
+>
+> - November 9, 2026: Zaim Developers Center stops accepting new application registrations. After that, you cannot start using this server unless you already have a registered application.
+> - By January 7, 2027: Under Article 21 of the API Terms of Use, delete any data you retrieved and your credentials (`.env`, Cloudflare Workers secrets, the `ZAIM_*` values in your Claude Desktop config, and so on).
+>
+> See the official notice (Japanese): [「Zaim API」の提供終了について](https://content.zaim.net/notices/show/2280).
+
 An MCP (Model Context Protocol) server for the Zaim API. It uses OAuth 1.0a authentication to read and manage household budget data in Zaim.
 
 ## Features
